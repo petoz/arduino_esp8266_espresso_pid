@@ -2,16 +2,47 @@
 
 #include "DHT.h"
 
+#include <PID_v1.h>
+
+
 #define DHTPIN            2         // Pin which is connected to the DHT sensor.
 #define DHTTYPE   DHT11     // DHT 11 
+
+#define PIN_INPUT 0
+#define PIN_OUTPUT 3
+
+//Define Variables we'll be connecting to
+double Setpoint, Input, Output;
+
+
+//Specify the links and initial tuning parameters
+double Kp=2, Ki=5, Kd=1;
+PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 DHT DHTPID(DHTPIN, DHTTYPE);
 
 float temp;
 
+//int WindowSize = 5000;
+int WindowSize = 1;
+unsigned long windowStartTime;
+
 void setup() {
   Serial.begin(9600);
   DHTPID.begin();
+
+  //Input = analogRead(PIN_INPUT);
+  temp = DHTPID.readTemperature();
+  Input = temp;
+ Setpoint = 25;
+
+  //turn the PID on
+  
+  //tell the PID to range between 0 and the full window size
+  myPID.SetOutputLimits(0, WindowSize);
+  //myPID.SetMode(MANUAL);
+  myPID.SetMode(AUTOMATIC);
+
 }
 
 void loop() {
@@ -25,4 +56,17 @@ void loop() {
     Serial.print(DHTPID.readTemperature());
     Serial.println(" *C");
   }
+  
+  //Input = analogRead(PIN_INPUT);
+  //Input = DHTPID.readTemperature();
+  Input = temp;
+  myPID.Compute();
+  Serial.print("My pid compute:");
+  Serial.println(myPID.Compute());
+  Serial.println("Input,Ouput,Setpoint");
+  Serial.println(Input);
+  Serial.println(Output);
+  Serial.println(Setpoint);
+  analogWrite(PIN_OUTPUT, Output);
+  
 }
