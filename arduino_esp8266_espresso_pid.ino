@@ -40,7 +40,7 @@ void setup() {
   
   //tell the PID to range between 0 and the full window size
   myPID.SetOutputLimits(0, WindowSize);
-  //myPID.SetMode(MANUAL);
+  //myPID.SetMode(MANUAL); //for manual regulation, not usable
   myPID.SetMode(AUTOMATIC);
 
 }
@@ -67,6 +67,13 @@ void loop() {
   Serial.println(Input);
   Serial.println(Output);
   Serial.println(Setpoint);
+  double getkp = myPID.GetKp();
+  double getki = myPID.GetKi();
+  double getkd = myPID.GetKd();
+  Serial.println("Kp,Ki,Kd");
+  Serial.println(getkp);
+  Serial.println(getki);
+  Serial.println(getkd);
   analogWrite(PIN_OUTPUT, Output);
   
 }
